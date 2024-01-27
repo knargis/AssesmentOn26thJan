@@ -1,50 +1,42 @@
-import { chromium, test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test";
+import CalendlyLoginPage from "../pages/calendlyLoginPage";
+import DashboardPage from "../pages/dashboard.page";
 
+test.describe("Page object test demo", async () => {
 
-// LambdaTest capabilities
-const capabilities = {
-    browserName: "Chrome", // Browsers allowed: `Chrome`, `MicrosoftEdge`, `pw-chromium`, `pw-firefox` and `pw-webkit`
-    browserVersion: "latest",
-    "LT:Options": {
-        platform: "Windows 10",
-        build: "Playwright Test Build",
-        name: "Playwright Test",
-        user: '',
-        accessKey: '',
-        network: true,
-        video: true,
-        console: true,
-        tunnel: false, // Add tunnel configuration if testing locally hosted webpage
-        tunnelName: "", // Optional
-        geoLocation: '', // country code can be fetched from https://www.lambdatest.com/capabilities-generator/
-    },
-};
-test("Login test demo", async () => {
+test("Login test_01 for invalid login with wrong email", async ({ page, baseURL }, testInfo) => {
+    const calendly = new CalendlyLoginPage(page);
+    await calendly.gotoUrl();
+    await calendly.openAndVerifyloginPage();
+    await calendly.verifyInvalidLoginWithWrongEmail('WrongEmail');
+})
 
-    const browser = await chromium.connect(`wss://cdp.lambdatest.com/playwright?capabilities=
-    ${encodeURIComponent(JSON.stringify(capabilities))}`);
-    const context = await browser.newContext();
-    const page = await context.newPage();
+test("Login test_02 for invalid login with pwd ", async ({ page }) => {
+    const calendly = new CalendlyLoginPage(page);
+    await calendly.gotoUrl();
+    await calendly.openAndVerifyloginPage();
+    await calendly.verifyLogin('Knargis92@gmail.com','wrongPwd');
+})
 
-    await page.goto("https://ecommerce-playground.lambdatest.io/")
-    await page.hover("//a[@data-toggle='dropdown']//span[contains(.,'My account')]")
-    // await page.click("text=Login")
-    await page.click("'Login'")
-    await page.fill("input[name='email']", "koushik350@gmail.com")
-    await page.fill("input[name='password']", "Pass123$")
-    await page.click("input[value='Login']");
+test("Login test_03 for valid login with correct email and pwd", async ({ page, baseURL }, testInfo) => {
+    const calendly = new CalendlyLoginPage(page);
+    await calendly.gotoUrl();
+    await calendly.openAndVerifyloginPage();
+    await calendly.verifyLogin('Knargis92@gmail.com', "Humerakhan@123");
+})
 
-    await page.close();
-    await context.close();
-    await browser.close();
+test("Login test_04: verify header menu", async ({ page }) => {
+    const calendly = new CalendlyLoginPage(page);
+    const dashboardpage = new DashboardPage(page);
+    await calendly.gotoUrl();
+    await dashboardpage.verifyHeaderMenu();
+})
 
-    // await page.waitForTimeout(5000);
-
-    // const newContext = await browser.newContext()
-
-    // const newPage = await newContext.newPage();
-    // await newPage.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
-
-    // await newPage.waitForTimeout(5000);
+test("Login test_05: verify pricing", async ({ page }) => {
+    const calendly = new CalendlyLoginPage(page);
+    const dashboardpage = new DashboardPage(page);
+    await calendly.gotoUrl();
+    await dashboardpage.verifyPricing();
+})
 
 })
